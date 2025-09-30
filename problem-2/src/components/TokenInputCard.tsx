@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import TokenAvatar from "./TokenAvatar";
+import TokenAvatar from "@/components/TokenAvatar";
 import {
   ChevronDownIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/24/outline";
-import type { Token } from "../types";
+import type { Token } from "@/types";
 
 interface TokenInputCardProps {
   token: Token | null;

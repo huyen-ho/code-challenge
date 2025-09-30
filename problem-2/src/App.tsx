@@ -1,4 +1,5 @@
-import SwapForm from "./components/SwapForm";
+import "./App.css";
+import SwapForm from "@/components/SwapForm";
 
 function App() {
   return <SwapForm />;

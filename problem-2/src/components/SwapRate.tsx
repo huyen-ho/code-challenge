@@ -1,7 +1,7 @@
 import React from "react";
 import { ArrowsRightLeftIcon } from "@heroicons/react/24/outline";
-import type { Token } from "../types";
-import { calculateSwapRate, formatNumber } from "../services/tokenService";
+import { calculateSwapRate, formatNumber } from "@/services/tokenService";
+import type { Token } from "@/types";
 
 interface SwapRateProps {
   fromToken: Token | null;

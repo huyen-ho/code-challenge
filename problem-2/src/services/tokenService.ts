@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { TokenPrice, Token } from "../types";
+import type { TokenPrice, Token } from "@/types";
 
 // Comprehensive token list from Switcheo token-icons repository
 export const AVAILABLE_TOKENS: Omit<Token, "price">[] = [

@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import type { Token, SwapFormData } from "../types";
+import type { Token, SwapFormData } from "@/types";
 import {
   getTokensWithPrices,
   calculateSwapRate,
-} from "../services/tokenService";
+} from "@/services/tokenService";
 
 export const useTokens = () => {
   const [tokens, setTokens] = useState<Token[]>([]);

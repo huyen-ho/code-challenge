@@ -1,9 +1,9 @@
-import React, { useState } from "react";
-import { ArrowDownUp, Info, CheckCircle, XCircle } from "lucide-react";
-import LoadingSpinner from "./LoadingSpinner";
-import TokenInputCard from "./TokenInputCard";
-import { useTokens, useSwap } from "../hooks/useSwap";
-import { calculateSwapRate } from "../services/tokenService";
+import React, { useMemo, useCallback } from "react";
+import { ArrowDownUp, Info, XCircle } from "lucide-react";
+import LoadingSpinner from "@/components/LoadingSpinner";
+import TokenInputCard from "@/components/TokenInputCard";
+import { useTokens, useSwap } from "@/hooks/useSwap";
+import { calculateSwapRate } from "@/services/tokenService";
 
 const SwapForm: React.FC = () => {
   const { tokens, loading: tokensLoading, error: tokensError } = useTokens();
@@ -17,33 +17,43 @@ const SwapForm: React.FC = () => {
     validationErrors,
   } = useSwap();
 
-  const [showSuccess] = useState(false);
+  // Utility function for USD value calculation
+  const calculateUsdValue = useCallback(
+    (token: typeof formData.fromToken, amount: string) => {
+      if (!token || !amount || !token.price) return "$0.00";
+      const value = Number(amount) * token.price;
+      return `≈ $${value.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`;
+    },
+    []
+  );
 
-  // Calculate USD values
-  const getUsdValue = (token: typeof formData.fromToken, amount: string) => {
-    if (!token || !amount || !token.price) return "$0.00";
-    const value = Number(amount) * token.price;
-    return `≈ $${value.toLocaleString("en-US", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`;
-  };
+  // Memoized USD values for form data
+  const fromUsdValue = useMemo(
+    () => calculateUsdValue(formData.fromToken, formData.fromAmount),
+    [calculateUsdValue, formData.fromToken, formData.fromAmount]
+  );
 
-  // Get exchange rates
-  const getExchangeRate = () => {
+  const toUsdValue = useMemo(
+    () => calculateUsdValue(formData.toToken, formData.toAmount),
+    [calculateUsdValue, formData.toToken, formData.toAmount]
+  );
+
+  // Memoized exchange rates calculation
+  const rates = useMemo(() => {
     if (!formData.fromToken || !formData.toToken) return null;
     const rate = calculateSwapRate(formData.fromToken, formData.toToken);
     const reverseRate = 1 / rate;
     return { rate, reverseRate };
-  };
-
-  const rates = getExchangeRate();
+  }, [formData.fromToken, formData.toToken]);
 
   if (tokensLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50 flex items-center justify-center">
         <div className="text-center">
-          <LoadingSpinner size="lg" className="mx-auto mb-4" />
+          <LoadingSpinner size="xl" color="indigo" className="mx-auto mb-4" />
           <p className="text-gray-600 text-lg">Loading tokens...</p>
         </div>
       </div>
@@ -74,19 +84,6 @@ const SwapForm: React.FC = () => {
           </p>
         </div>
 
-        {/* Success Message */}
-        {showSuccess && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center space-x-3 animate-in fade-in slide-in-from-top-2 duration-300">
-            <CheckCircle className="w-6 h-6 text-green-500 flex-shrink-0" />
-            <div>
-              <p className="font-semibold text-green-900">Swap Successful!</p>
-              <p className="text-sm text-green-700">
-                Your tokens have been exchanged.
-              </p>
-            </div>
-          </div>
-        )}
-
         {/* Main Card */}
         <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100/50 p-6 border border-gray-100">
           {/* From Section */}
@@ -96,7 +93,7 @@ const SwapForm: React.FC = () => {
             tokens={tokens}
             onTokenSelect={setFromToken}
             onAmountChange={updateFromAmount}
-            usdValue={getUsdValue(formData.fromToken, formData.fromAmount)}
+            usdValue={fromUsdValue}
             balance="1,000,000"
             hasValue={formData.fromToken !== null}
             showMaxButton={true}
@@ -128,7 +125,7 @@ const SwapForm: React.FC = () => {
             )}
             onTokenSelect={setToToken}
             onAmountChange={() => {}}
-            usdValue={getUsdValue(formData.toToken, formData.toAmount)}
+            usdValue={toUsdValue}
             readOnly={true}
             hasValue={formData.toToken !== null}
             error={validationErrors.toAmount}

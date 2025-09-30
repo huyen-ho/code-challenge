@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { Token } from "../types";
+import type { Token } from "@/types";
 
 interface TokenAvatarProps {
   token: Token | null;
