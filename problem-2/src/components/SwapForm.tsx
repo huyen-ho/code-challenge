@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { ArrowDownUp, Info, CheckCircle, XCircle } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner";
 import TokenInputCard from "./TokenInputCard";
-import SwapStats from "./SwapStats";
 import { useTokens, useSwap } from "../hooks/useSwap";
 import { calculateSwapRate } from "../services/tokenService";
 
@@ -92,7 +91,6 @@ const SwapForm: React.FC = () => {
         <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100/50 p-6 border border-gray-100">
           {/* From Section */}
           <TokenInputCard
-            label="From"
             token={formData.fromToken}
             amount={formData.fromAmount}
             tokens={tokens}
@@ -115,7 +113,7 @@ const SwapForm: React.FC = () => {
           <div className="flex justify-center -my-2 relative z-10">
             <button
               onClick={swapTokens}
-              className="w-12 h-12 bg-white border-4 border-indigo-50 rounded-xl shadow-lg hover:shadow-xl hover:rotate-180 transition-all duration-300 flex items-center justify-center group"
+              className="w-12 h-12 bg-white border-4 border-indigo-50 rounded-xl shadow-lg hover:shadow-xl hover:border-indigo-300 hover:scale-105 transition-all duration-300 flex items-center justify-center group"
             >
               <ArrowDownUp className="w-5 h-5 text-indigo-600 group-hover:text-indigo-700" />
             </button>
@@ -123,7 +121,6 @@ const SwapForm: React.FC = () => {
 
           {/* To Section */}
           <TokenInputCard
-            label="To"
             token={formData.toToken}
             amount={formData.toAmount}
             tokens={tokens.filter(
@@ -186,9 +183,6 @@ const SwapForm: React.FC = () => {
             </div>
           )}
         </div>
-
-        {/* Footer Stats */}
-        <SwapStats className="mt-6" />
 
         {/* Footer */}
         <div className="text-center mt-8 text-sm text-gray-500">
