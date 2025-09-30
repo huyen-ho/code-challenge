@@ -139,7 +139,7 @@ const TokenDropdown: React.FC<TokenDropdownProps> = ({
                     </div>
 
                     {/* Mobile Layout */}
-                    <div className="xs:hidden">
+                    <div className="sm:hidden">
                       <div className="flex space-x-3 mb-2">
                         <img
                           src={t.logoURI}
