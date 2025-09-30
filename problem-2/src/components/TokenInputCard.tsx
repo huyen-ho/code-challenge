@@ -51,6 +51,32 @@ const TokenInputCard: React.FC<TokenInputCardProps> = ({
     setIsOpen(false);
   };
 
+  // Format number with commas for display
+  const formatNumberWithCommas = (value: string): string => {
+    if (!value) return "";
+
+    // Split by decimal point
+    const parts = value.split(".");
+    const integerPart = parts[0];
+    const decimalPart = parts[1];
+
+    // Add commas to integer part
+    const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+    // Return formatted number with decimal if it exists
+    return decimalPart !== undefined
+      ? `${formattedInteger}.${decimalPart}`
+      : formattedInteger;
+  };
+
+  // Remove commas from formatted number for processing
+  const parseFormattedNumber = (value: string): string => {
+    return value.replace(/,/g, "");
+  };
+
+  // Get display value (formatted with commas)
+  const displayValue = formatNumberWithCommas(amount);
+
   return (
     <div>
       <div
@@ -77,12 +103,15 @@ const TokenInputCard: React.FC<TokenInputCardProps> = ({
         <div className="flex items-end justify-between gap-2">
           <input
             type="text"
-            value={amount}
+            value={displayValue}
             onChange={(e) => {
-              const value = e.target.value;
-              // Only allow numbers and decimal point
-              if (value === "" || /^\d*\.?\d*$/.test(value)) {
-                onAmountChange(value);
+              const inputValue = e.target.value;
+              // Remove commas for validation
+              const cleanValue = parseFormattedNumber(inputValue);
+
+              // Only allow numbers, decimal point, and commas
+              if (cleanValue === "" || /^\d*\.?\d*$/.test(cleanValue)) {
+                onAmountChange(cleanValue);
               }
             }}
             readOnly={readOnly}
@@ -104,7 +133,10 @@ const TokenInputCard: React.FC<TokenInputCardProps> = ({
           <span className="text-xs sm:text-sm text-gray-500">{usdValue}</span>
           {balance && (
             <span className="text-xs sm:text-sm text-gray-600">
-              Balance: <span className="font-semibold">{balance}</span>
+              Balance:{" "}
+              <span className="font-semibold">
+                {formatNumberWithCommas(balance)}
+              </span>
             </span>
           )}
         </div>

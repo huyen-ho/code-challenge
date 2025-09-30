@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from "react";
+import React, { useMemo, useCallback, useEffect } from "react";
 import { ArrowDownUp, Info, XCircle } from "lucide-react";
 import LoadingSpinner from "@/components/LoadingSpinner";
 import TokenInputCard from "@/components/TokenInputCard";
@@ -17,6 +17,43 @@ const SwapForm: React.FC = () => {
     validationErrors,
   } = useSwap();
 
+  // Set default tokens when tokens are loaded
+  useEffect(() => {
+    if (tokens.length > 0 && !formData.fromToken && !formData.toToken) {
+      // Set default tokens: USDC as from token and ETH as to token
+      const defaultFromToken =
+        tokens.find(
+          (token) => token.currency === "USDC" || token.symbol === "USDC"
+        ) || tokens[0]; // Fallback to first token if USDC not found
+
+      const defaultToToken =
+        tokens.find(
+          (token) => token.currency === "ETH" || token.symbol === "ETH"
+        ) ||
+        tokens[1] ||
+        tokens[0]; // Fallback to second token or first if only one available
+
+      // Only set different tokens
+      if (
+        defaultFromToken &&
+        defaultToToken &&
+        defaultFromToken.currency !== defaultToToken.currency
+      ) {
+        setFromToken(defaultFromToken);
+        setToToken(defaultToToken);
+      } else if (defaultFromToken) {
+        setFromToken(defaultFromToken);
+        // Set toToken to the first different token
+        const differentToken = tokens.find(
+          (t) => t.currency !== defaultFromToken.currency
+        );
+        if (differentToken) {
+          setToToken(differentToken);
+        }
+      }
+    }
+  }, [tokens, formData.fromToken, formData.toToken, setFromToken, setToToken]);
+
   // Utility function for USD value calculation
   const calculateUsdValue = useCallback(
     (token: typeof formData.fromToken, amount: string) => {
@@ -27,7 +64,7 @@ const SwapForm: React.FC = () => {
         maximumFractionDigits: 2,
       })}`;
     },
-    []
+    [] // This function doesn't depend on any props/state since it receives all params
   );
 
   // Memoized USD values for form data
