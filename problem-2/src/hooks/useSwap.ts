@@ -85,7 +85,8 @@ export const useSwap = () => {
       errors.general = "Cannot swap the same token";
     }
 
-    const fromAmountError = validateAmount(formData.fromAmount);
+    // Validate fromAmount with balance check
+    const fromAmountError = validateAmount(formData.fromAmount, 1000000);
     if (fromAmountError) errors.fromAmount = fromAmountError;
 
     const toAmountError = validateAmount(formData.toAmount);
@@ -96,6 +97,21 @@ export const useSwap = () => {
   }, [formData]);
 
   const updateFromAmount = useCallback((amount: string) => {
+    // Check if the new amount exceeds balance before updating
+    const numAmount = Number(amount);
+    const balance = 1000000;
+
+    // Prevent typing if amount exceeds balance (and amount is not empty)
+    if (amount && !isNaN(numAmount) && numAmount > balance) {
+      // Show error but don't update the amount
+      setValidationErrors((prev) => ({
+        ...prev,
+        fromAmount: "Insufficient balance",
+        general: undefined,
+      }));
+      return; // Don't update the amount
+    }
+
     setFormData((prev) => {
       const newData = { ...prev, fromAmount: amount };
 
@@ -115,10 +131,16 @@ export const useSwap = () => {
       return newData;
     });
 
-    // Clear validation errors when user types
+    // Real-time validation with balance check
+    const errors: typeof validationErrors = {};
+    const amountError = validateAmount(amount, balance);
+    if (amountError) {
+      errors.fromAmount = amountError;
+    }
+
     setValidationErrors((prev) => ({
       ...prev,
-      fromAmount: undefined,
+      fromAmount: errors.fromAmount,
       general: undefined,
     }));
   }, []);
